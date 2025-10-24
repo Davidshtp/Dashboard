@@ -4,12 +4,9 @@ import { Link } from "react-router-dom";
 
 const ForgetPassword = () => {
     return (
-<<<<<<< HEAD
-        <div className="bg-secondary-100 p-8 rounded-xl shadow-2xl w-full max-w-[450px] mx-auto">
-=======
+
         <div className="min-h-screen flex items-center justify-center p-4">
          <div className="bg-secondary-100 p-8 rounded-xl shadow-2xl w-full max-w-[450px] mx-auto">
->>>>>>> 75c6c821cd5a8f19ee5ee73a6573d4dbdb2ab1ea
             <h1 className="text-3xl text-center uppercase font-bold tracking-[5px] text-white mb-8">
                 Recuperar
                 <span className="block text-primary">Contrasena</span>
@@ -34,11 +31,10 @@ const ForgetPassword = () => {
                 <span className="flex items-center justify-center gap-2">
                     Ya tienes cuenta?
                     <Link
-<<<<<<< HEAD
-                        to="/auth"
-=======
+
+
                         to="/login"
->>>>>>> 75c6c821cd5a8f19ee5ee73a6573d4dbdb2ab1ea
+
                         className="text-primary hover:text-gray-100 transition-colors">
                         Ingresa
                     </Link>
@@ -46,21 +42,16 @@ const ForgetPassword = () => {
                 <span className="flex items-center gap-2">
                     No tienes cuenta?
                     <Link
-<<<<<<< HEAD
-                        to="/auth/registro"
-=======
+
+
                         to="/registro"
->>>>>>> 75c6c821cd5a8f19ee5ee73a6573d4dbdb2ab1ea
                         className="text-primary hover:text-gray-100 transition-colors">
                         Registrate
                     </Link>
                 </span>
 
             </div>
-<<<<<<< HEAD
-=======
          </div>
->>>>>>> 75c6c821cd5a8f19ee5ee73a6573d4dbdb2ab1ea
         </div>
     );
 };

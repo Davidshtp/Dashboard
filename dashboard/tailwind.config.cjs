@@ -15,7 +15,9 @@ export default {
       }
     },
   },
+  //yarn add @headlessui/tailwindcss
   plugins: [
-    require('tailwind-scrollbar-hide')
+    require('tailwind-scrollbar-hide'),
+    require('@headlessui/tailwindcss')
   ]
 }

@@ -286,11 +286,10 @@ const Profile = () => {
           <hr className="my-8 border-gray-500/30 border-dashed" />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-<<<<<<< HEAD
+
               <img
-=======
-              <imgs
->>>>>>> 75c6c821cd5a8f19ee5ee73a6573d4dbdb2ab1ea
+
+
                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Slack_icon_2019.svg/2048px-Slack_icon_2019.svg.png"
                 className="w-8 h-8 object-cover"
               />
@@ -410,8 +409,4 @@ const Profile = () => {
   );
 };
 
-<<<<<<< HEAD
 export default Profile;
-=======
-export default Profile;
->>>>>>> 75c6c821cd5a8f19ee5ee73a6573d4dbdb2ab1ea
