@@ -1,6 +1,16 @@
 import React, { useState } from "react"
 import { Link } from "react-router-dom"
-import { RiBarChart2Line, RiEarthLine, RiCalendarTodoLine, RiMessage3Line, RiLogoutCircleLine, RiArrowRightSLine, RiMenu3Line, RiCloseLine} from "react-icons/ri"
+import { 
+  RiBarChart2Line, 
+  RiEarthLine, 
+  RiCalendarTodoLine, 
+  RiCustomerService2Line, 
+  RiLogoutCircleLine, 
+  RiArrowRightSLine, 
+  RiMenu3Line, 
+  RiCloseLine,
+} from "react-icons/ri";
+
 
 const Sidebar = () => {
   const [showMenu, setShowMenu] = useState(false)
@@ -47,8 +57,8 @@ const Sidebar = () => {
             </li>
             <li>
               <Link to="/" className=" flex items-center gap-4 py-2 px-4 rounded-lg hover:bg-secondary-900 transition-colors">
-                <RiMessage3Line className="text-primary" />
-                Mensajes
+                <RiCustomerService2Line  className="text-primary" />
+                Soporte Tecnico
               </Link>
             </li>
             <li>
