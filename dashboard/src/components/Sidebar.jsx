@@ -1,6 +1,15 @@
+// src/components/Sidebar.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { RiBarChart2Line, RiEarthLine, RiCalendarTodoLine, RiCustomerService2Line, RiLogoutCircleLine, RiArrowRightSLine, RiMenu3Line, RiCloseLine,} from "react-icons/ri";
+import { 
+  RiBarChart2Line, 
+  RiEarthLine, 
+  RiCustomerService2Line, // RiCalendarTodoLine no se usaba, así que lo limpié
+  RiLogoutCircleLine, 
+  RiArrowRightSLine, 
+  RiMenu3Line, 
+  RiCloseLine,
+} from "react-icons/ri";
 import { useAuthStore } from "../stores/authStore";
 import toast from "react-hot-toast";
 
@@ -13,9 +22,7 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     logout();
-
     toast.success("Sesión cerrada correctamente", { duration: 2000 });
-
     setTimeout(() => navigate("/login"), 2100);
   };
 
@@ -28,7 +35,8 @@ const Sidebar = () => {
           </h1>
           <ul>
             <li>
-              <Link to="/" className=" flex items-center gap-4 py-2 px-4 rounded-lg hover:bg-secondary-900 transition-colors">
+              {/* --- ESTE ES EL ENLACE ACTUALIZADO --- */}
+              <Link to="/dashboard/inventario" className=" flex items-center gap-4 py-2 px-4 rounded-lg hover:bg-secondary-900 transition-colors">
                 <RiBarChart2Line className="text-primary" />
                 Inventario
               </Link>

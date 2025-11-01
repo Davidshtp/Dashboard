@@ -1,3 +1,4 @@
+// src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
@@ -9,23 +10,19 @@ import Profile from "./pages/admin/Profile";
 import Error404 from "./pages/Error404";
 import ProtectedRoute from "./components/ProtectedRoute"; 
 
+// 1. Importar la nueva página
+import Inventory from "./pages/admin/Inventory";
+
 function App() {
   return (
     <>
       <Toaster
         position="top-right"
-        toastOptions={{
-          duration: 2000,
-          style: {
-            borderRadius: '8px',
-            background: '#1f2937',
-            color: '#facc15',
-          },
-          iconTheme: {
-            primary: '#facc15',
-            secondary: '#1f2937',
-          },
-        }}
+        toastOptions={
+          {
+            /* ... (tu configuración de Toaster) ... */
+          }
+        }
       />
 
       <BrowserRouter>
@@ -45,6 +42,8 @@ function App() {
               </ProtectedRoute>
             }
           >
+            {/* 2. Agregar la nueva ruta aquí */}
+            <Route path="inventario" element={<Inventory />} />
             <Route path="perfil" element={<Profile />} />
           </Route>
           
