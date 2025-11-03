@@ -1,4 +1,3 @@
-// src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
@@ -10,8 +9,8 @@ import Profile from "./pages/admin/Profile";
 import Error404 from "./pages/Error404";
 import ProtectedRoute from "./components/ProtectedRoute"; 
 
-// 1. Importar la nueva página
 import Inventory from "./pages/admin/Inventory";
+import Categories from "./pages/admin/Categories"; 
 
 function App() {
   return (
@@ -44,6 +43,7 @@ function App() {
           >
             {/* 2. Agregar la nueva ruta aquí */}
             <Route path="inventario" element={<Inventory />} />
+            <Route path="categorias" element={<Categories />} /> {/* <-- Añadimos la ruta */}
             <Route path="perfil" element={<Profile />} />
           </Route>
           

@@ -1,4 +1,3 @@
-// src/stores/inventoryStore.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -8,6 +7,7 @@ export interface Item {
   description: string;
   quantity: number;
   price: number;
+  categoryId: string;
 }
 
 interface InventoryState {
@@ -22,14 +22,14 @@ export const useInventoryStore = create<InventoryState>()(
     (set) => ({
       items: [], // Estado inicial
 
-      // Acción para agregar
+      // Acción agregar 
       addItem: (item) => {
         set((state) => ({
           items: [...state.items, item],
         }));
       },
 
-      // Acción para actualizar
+      // Acción actualizar
       updateItem: (updatedItem) => {
         set((state) => ({
           items: state.items.map((item) =>
@@ -38,7 +38,7 @@ export const useInventoryStore = create<InventoryState>()(
         }));
       },
 
-      // Acción para eliminar
+      // Acción eliminar
       deleteItem: (id) => {
         set((state) => ({
           items: state.items.filter((item) => item.id !== id),

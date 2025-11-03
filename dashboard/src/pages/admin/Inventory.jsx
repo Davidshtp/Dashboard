@@ -1,7 +1,7 @@
-// src/pages/admin/Inventory.jsx
 import React, { useState } from "react";
 import { RiAddLine, RiPencilLine, RiDeleteBinLine } from "react-icons/ri";
 import { useInventoryStore } from "../../stores/inventoryStore";
+import { useCategoryStore } from "../../stores/categoryStore";
 import InventoryModal from "../../components/InventoryModal";
 import toast from "react-hot-toast";
 
@@ -10,6 +10,11 @@ const Inventory = () => {
   const [itemToEdit, setItemToEdit] = useState(null);
 
   const items = useInventoryStore((state) => state.items);
+  const { categories } = useCategoryStore();
+  const getCategoryName = (categoryId) => {
+    const category = categories.find((c) => c.id === categoryId);
+    return category ? category.name : "Sin categoría";
+  };
   const deleteItem = useInventoryStore((state) => state.deleteItem);
 
   const handleOpenModal = () => {
@@ -52,6 +57,7 @@ const Inventory = () => {
               <tr className="border-b border-gray-500/30">
                 <th className="py-2 px-4 text-left">Nombre</th>
                 <th className="py-2 px-4 text-left">Descripción</th>
+                <th className="py-2 px-4 text-left">Categoría</th>
                 <th className="py-2 px-4 text-left">Cantidad</th>
                 <th className="py-2 px-4 text-left">Precio</th>
                 <th className="py-2 px-4 text-left">Acciones</th>
@@ -60,7 +66,7 @@ const Inventory = () => {
             <tbody>
               {items.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="py-4 text-center text-gray-500">
+                  <td colSpan="6" className="py-4 text-center text-gray-500">
                     No hay productos en el inventario.
                   </td>
                 </tr>
@@ -69,6 +75,7 @@ const Inventory = () => {
                   <tr key={item.id} className="border-b border-gray-500/30 hover:bg-secondary-900">
                     <td className="py-2 px-4">{item.name}</td>
                     <td className="py-2 px-4 text-gray-400">{item.description}</td>
+                    <td className="py-2 px-4">{getCategoryName(item.categoryId)}</td>
                     <td className="py-2 px-4">{item.quantity}</td>
                     <td className="py-2 px-4">${item.price}</td>
                     <td className="py-2 px-4">

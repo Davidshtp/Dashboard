@@ -1,7 +1,7 @@
-// src/components/InventoryModal.jsx
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useInventoryStore } from "../stores/inventoryStore";
+import { useCategoryStore } from "../stores/categoryStore";
 import toast from "react-hot-toast";
 
 const InventoryModal = ({ isOpen, onClose, itemToEdit }) => {
@@ -11,10 +11,12 @@ const InventoryModal = ({ isOpen, onClose, itemToEdit }) => {
     description: "",
     quantity: 0,
     price: 0,
+    categoryId: "", // Estado del formulario
   });
 
   const addItem = useInventoryStore((state) => state.addItem);
   const updateItem = useInventoryStore((state) => state.updateItem);
+  const categories = useCategoryStore((state) => state.categories); // Obtener categorías 
 
   // Cargar datos del item cuando se abre en modo edición
   useEffect(() => {
@@ -28,6 +30,7 @@ const InventoryModal = ({ isOpen, onClose, itemToEdit }) => {
         description: "",
         quantity: 0,
         price: 0,
+        categoryId: "",
       });
     }
   }, [itemToEdit, isOpen]);
@@ -50,15 +53,14 @@ const InventoryModal = ({ isOpen, onClose, itemToEdit }) => {
       addItem(form);
       toast.success("Producto agregado");
     }
-    onClose(); // Cierra el modal
+    onClose();
   };
 
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
-      {/* Backdrop */}
+
       <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
 
-      {/* Contenido del Modal */}
       <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
         <DialogPanel className="w-full max-w-md space-y-4 bg-secondary-100 p-8 rounded-xl">
           <DialogTitle className="font-bold text-xl text-white">
@@ -87,6 +89,23 @@ const InventoryModal = ({ isOpen, onClose, itemToEdit }) => {
                 rows={3}
                 className="w-full py-2 px-4 outline-none rounded-lg bg-secondary-900 mt-1 resize-none"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300">Categoría</label>
+              <select
+                name="categoryId"
+                value={form.categoryId}
+                onChange={handleChange}
+                className="w-full py-2 px-4 outline-none rounded-lg bg-secondary-900 mt-1"
+                required
+              >
+                <option value="">Selecciona una categoría</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="flex gap-4">
               <div className="w-1/2">

@@ -1,4 +1,3 @@
-// src/components/Sidebar.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
@@ -9,6 +8,7 @@ import {
   RiArrowRightSLine, 
   RiMenu3Line, 
   RiCloseLine,
+  RiArchiveStackLine, 
 } from "react-icons/ri";
 import { useAuthStore } from "../stores/authStore";
 import toast from "react-hot-toast";
@@ -35,7 +35,7 @@ const Sidebar = () => {
           </h1>
           <ul>
             <li>
-              {/* --- ESTE ES EL ENLACE ACTUALIZADO --- */}
+              {/* RUTA INVENTARIO*/}
               <Link to="/dashboard/inventario" className=" flex items-center gap-4 py-2 px-4 rounded-lg hover:bg-secondary-900 transition-colors">
                 <RiBarChart2Line className="text-primary" />
                 Inventario
@@ -50,7 +50,10 @@ const Sidebar = () => {
               </button>
               <ul className={`my-2 ${!showSubmenu && "hidden"}`}>
                 <li>
-                  <Link to="/" className="py-2 px-4 border-l border-gray-500 ml-6 block relative before:w-3 before:h-3 before:absolute before:bg-primary before:rounded-full before:-left-[6.5px] before:top-1/2 before:-translate-y-1/2 before:border-2 before:border-secondary-100 hover:text-white transition-colors">
+                  {/* RUTA CATEGORIA*/}
+                  <Link 
+                    to="/dashboard/categorias" 
+                    className="py-2 px-4 border-l border-gray-500 ml-6 block relative before:w-3 before:h-3 before:absolute before:bg-primary before:rounded-full before:-left-[6.5px] before:top-1/2 before:-translate-y-1/2 before:border-2 before:border-secondary-100 hover:text-white transition-colors">
                     Categorias
                   </Link>
                 </li>
