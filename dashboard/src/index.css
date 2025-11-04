@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Chrome, Edge, Opera */
+.sidebar-container::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Firefox */
+.sidebar-container {
+  scrollbar-width: none;
+}
+
+/* Older browsers fallback */
+.sidebar-container {
+  -ms-overflow-style: none;
+}
