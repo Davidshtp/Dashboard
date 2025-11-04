@@ -18,6 +18,9 @@ interface UserState {
   login: (email: string, password: string) => "success" | "user-not-found" | "wrong-password";
   logout: () => void;
   resetPassword: (email: string, newPassword: string) => "success" | "user-not-found";
+  updateCurrentUser: (partial: Partial<User>) => "success" | "no-current-user";
+  updateEmail: (newEmail: string) => "success" | "email-exists" | "no-current-user";
+  changePassword: (currentPassword: string, newPassword: string) => "success" | "no-current-user" | "wrong-current";
 
   // Funciones de recuperación de contraseña
   setResetCode: (email: string, code: string) => "success" | "user-not-found";
@@ -59,6 +62,42 @@ export const useUserStore = create<UserState>()(
         const exists = users.find(u => u.email === email);
         if (!exists) return "user-not-found";
         set({ users });
+        return "success";
+      },
+
+      updateCurrentUser: (partial) => {
+        const curr = get().currentUser;
+        if (!curr) return "no-current-user";
+        if (partial.email && partial.email !== curr.email) {
+          const exists = get().users.find(u => u.email === partial.email);
+          if (exists) return "email-exists" as any;
+        }
+        const updated = { ...curr, ...partial } as User;
+        const users = get().users.map(u => (u.id === curr.id ? updated : u));
+        set({ users, currentUser: updated });
+        return "success";
+      },
+
+      updateEmail: (newEmail) => {
+        const curr = get().currentUser;
+        if (!curr) return "no-current-user";
+        if (newEmail !== curr.email) {
+          const exists = get().users.find(u => u.email === newEmail);
+          if (exists) return "email-exists";
+        }
+        const updated = { ...curr, email: newEmail } as User;
+        const users = get().users.map(u => (u.id === curr.id ? updated : u));
+        set({ users, currentUser: updated });
+        return "success";
+      },
+
+      changePassword: (currentPassword, newPassword) => {
+        const curr = get().currentUser;
+        if (!curr) return "no-current-user";
+        if (curr.password !== currentPassword) return "wrong-current";
+        const updated = { ...curr, password: newPassword } as User;
+        const users = get().users.map(u => (u.id === curr.id ? updated : u));
+        set({ users, currentUser: updated });
         return "success";
       },
 

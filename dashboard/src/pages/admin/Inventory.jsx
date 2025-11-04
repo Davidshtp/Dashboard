@@ -8,6 +8,8 @@ import toast from "react-hot-toast";
 const Inventory = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState(null);
+  const [search, setSearch] = useState("");
+  const [debounced, setDebounced] = useState("");
 
   const items = useInventoryStore((state) => state.items);
   const { categories } = useCategoryStore();
@@ -16,6 +18,26 @@ const Inventory = () => {
     return category ? category.name : "Sin categoría";
   };
   const deleteItem = useInventoryStore((state) => state.deleteItem);
+
+  // Debounce básico para la búsqueda
+  React.useEffect(() => {
+    const id = setTimeout(() => setDebounced(search.trim().toLowerCase()), 300);
+    return () => clearTimeout(id);
+  }, [search]);
+
+  const filteredItems = React.useMemo(() => {
+    if (!debounced) return items;
+    return items.filter((item) => {
+      const name = (item.name || "").toLowerCase();
+      const desc = (item.description || "").toLowerCase();
+      const cat = getCategoryName(item.categoryId).toLowerCase();
+      return (
+        name.includes(debounced) ||
+        desc.includes(debounced) ||
+        cat.includes(debounced)
+      );
+    });
+  }, [debounced, items, categories]);
 
   const handleOpenModal = () => {
     setItemToEdit(null);
@@ -48,6 +70,19 @@ const Inventory = () => {
             <RiAddLine /> Agregar Producto
           </button>
         </div>
+        <div className="flex items-center gap-4 mb-4">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar por nombre, descripción o categoría..."
+            className="w-full md:w-1/2 bg-secondary-900 border border-gray-600 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/60"
+          />
+          {debounced && (
+            <span className="text-xs text-gray-400">
+              {filteredItems.length} resultado{filteredItems.length === 1 ? "" : "s"}
+            </span>
+          )}
+        </div>
         <hr className="my-8 border-gray-500/30" />
 
         {/* Tabla de Inventario */}
@@ -70,8 +105,14 @@ const Inventory = () => {
                     No hay productos en el inventario.
                   </td>
                 </tr>
+              ) : filteredItems.length === 0 && debounced ? (
+                <tr>
+                  <td colSpan="6" className="py-4 text-center text-gray-500">
+                    No se encontraron resultados para "{search}".
+                  </td>
+                </tr>
               ) : (
-                items.map((item) => (
+                filteredItems.map((item) => (
                   <tr key={item.id} className="border-b border-gray-500/30 hover:bg-secondary-900">
                     <td className="py-2 px-4">{item.name}</td>
                     <td className="py-2 px-4 text-gray-400">{item.description}</td>
