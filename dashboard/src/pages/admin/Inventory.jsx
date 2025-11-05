@@ -50,8 +50,10 @@ const Inventory = () => {
   };
 
   const handleDeleteItem = (id) => {
-    toast.error("Producto eliminado", { duration: 2000 });
-    deleteItem(id);
+    if (window.confirm("¿Estás seguro de que deseas eliminar este producto?")) {
+      deleteItem(id);
+      toast.success("Producto eliminado correctamente", { duration: 2000 });
+    }
   };
 
   const closeModal = () => {

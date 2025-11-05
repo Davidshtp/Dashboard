@@ -46,12 +46,39 @@ const InventoryModal = ({ isOpen, onClose, itemToEdit }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Validaciones mejoradas
+    if (!form.name.trim()) {
+      toast.error("El nombre del producto es requerido");
+      return;
+    }
+
+    if (!form.categoryId) {
+      toast.error("Debe seleccionar una categoría");
+      return;
+    }
+
+    if (form.quantity < 0) {
+      toast.error("La cantidad no puede ser negativa");
+      return;
+    }
+
+    if (form.price <= 0) {
+      toast.error("El precio debe ser mayor a 0");
+      return;
+    }
+
+    const formData = {
+      ...form,
+      name: form.name.trim(),
+      description: form.description.trim(),
+    };
+
     if (itemToEdit) {
-      updateItem(form);
-      toast.success("Producto actualizado");
+      updateItem(formData);
+      toast.success("Producto actualizado correctamente");
     } else {
-      addItem(form);
-      toast.success("Producto agregado");
+      addItem(formData);
+      toast.success("Producto agregado correctamente");
     }
     onClose();
   };

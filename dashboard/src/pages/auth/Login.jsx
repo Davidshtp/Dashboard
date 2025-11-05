@@ -15,7 +15,14 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const result = loginUser(email, password);
+
+    // Validaciones básicas
+    if (!email.trim() || !password.trim()) {
+      toast.error("Por favor completa todos los campos", { duration: 3000 });
+      return;
+    }
+
+    const result = loginUser(email.toLowerCase().trim(), password);
 
     if (result === "success") {
       // Obtener el usuario actual del userStore
@@ -23,7 +30,7 @@ const Login = () => {
       if (currentUser) {
         // Establecer la autenticación en ambos stores
         loginAuth(currentUser);
-        toast.success("¡Bienvenido!", { duration: 2000 });
+        toast.success(`¡Bienvenido ${currentUser.name}!`, { duration: 2000 });
         setTimeout(() => navigate("/dashboard"), 2100);
       }
     } else if (result === "user-not-found") {

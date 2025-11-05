@@ -24,24 +24,35 @@ const Register = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Validaciones mejoradas
+    if (!form.name.trim() || !form.lastName.trim()) {
+      toast.error("Nombre y apellido son requeridos", { duration: 3000 });
+      return;
+    }
+
+    if (form.password.length < 6) {
+      toast.error("La contraseña debe tener al menos 6 caracteres", { duration: 3000 });
+      return;
+    }
+
     if (form.password !== form.confirmPassword) {
-      toast.error("Las contraseñas no coinciden", { duration: 2000 });
+      toast.error("Las contraseñas no coinciden", { duration: 3000 });
       return;
     }
 
     const result = register({
       id: Date.now().toString(),
-      name: form.name,
-      lastName: form.lastName,
-      email: form.email,
+      name: form.name.trim(),
+      lastName: form.lastName.trim(),
+      email: form.email.toLowerCase().trim(),
       password: form.password,
     });
 
     if (result === "success") {
       toast.success("Registrado correctamente", { duration: 2000 });
-      setTimeout(() => navigate("/"), 2000);
+      setTimeout(() => navigate("/login"), 2100);
     } else if (result === "email-exists") {
-      toast.error("Ya existe una cuenta con ese correo", { duration: 2000 });
+      toast.error("Ya existe una cuenta con ese correo", { duration: 3000 });
     }
   };
 

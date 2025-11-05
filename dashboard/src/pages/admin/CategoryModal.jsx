@@ -19,17 +19,37 @@ const CategoryModal = ({ isOpen, onClose, categoryToEdit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name.trim()) {
-      toast.error("El nombre de la categoría no puede estar vacío.");
+    
+    const trimmedName = name.trim();
+    
+    if (!trimmedName) {
+      toast.error("El nombre de la categoría no puede estar vacío");
+      return;
+    }
+
+    if (trimmedName.length < 2) {
+      toast.error("El nombre debe tener al menos 2 caracteres");
+      return;
+    }
+
+    // Verificar si ya existe una categoría con ese nombre
+    const categories = useCategoryStore.getState().categories;
+    const existingCategory = categories.find(
+      cat => cat.name.toLowerCase() === trimmedName.toLowerCase() && 
+             (!categoryToEdit || cat.id !== categoryToEdit.id)
+    );
+
+    if (existingCategory) {
+      toast.error("Ya existe una categoría con ese nombre");
       return;
     }
 
     if (categoryToEdit) {
-      updateCategory({ ...categoryToEdit, name });
-      toast.success("Categoría actualizada");
+      updateCategory({ ...categoryToEdit, name: trimmedName });
+      toast.success("Categoría actualizada correctamente");
     } else {
-      addCategory({ id: Date.now().toString(), name });
-      toast.success("Categoría agregada");
+      addCategory({ id: Date.now().toString(), name: trimmedName });
+      toast.success("Categoría agregada correctamente");
     }
     onClose();
   };

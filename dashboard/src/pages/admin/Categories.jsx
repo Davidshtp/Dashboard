@@ -23,16 +23,18 @@ const Categories = () => {
   };
 
   const handleDeleteCategory = (id) => {
-    // Verificar si categoria está siendo usada pora algún item
+    // Verificar si categoria está siendo usada por algún item
     const isCategoryInUse = items.some((item) => item.categoryId === id);
 
     if (isCategoryInUse) {
-      toast.error("No se puede eliminar. La categoría está en uso por uno o más productos.");
+      toast.error("No se puede eliminar. La categoría está en uso por uno o más productos", { duration: 4000 });
       return;
     }
 
-    toast.error("Categoría eliminada", { duration: 2000 });
-    deleteCategory(id);
+    if (window.confirm("¿Estás seguro de que deseas eliminar esta categoría?")) {
+      deleteCategory(id);
+      toast.success("Categoría eliminada correctamente", { duration: 2000 });
+    }
   };
 
   const closeModal = () => {

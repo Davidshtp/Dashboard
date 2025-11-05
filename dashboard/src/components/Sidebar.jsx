@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   RiBarChart2Line,
   RiEarthLine,
@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 const Sidebar = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [showSubmenu, setShowSubmenu] = useState(false);
+  const location = useLocation();
 
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
@@ -35,9 +36,26 @@ const Sidebar = () => {
           </h1>
           <ul>
             <li>
-              {/* RUTA INVENTARIO*/}
-              <Link to="/dashboard/inventario" className=" flex items-center gap-4 py-2 px-4 rounded-lg hover:bg-secondary-900 transition-colors">
+              {/* RUTA DASHBOARD*/}
+              <Link 
+                to="/dashboard" 
+                className={`flex items-center gap-4 py-2 px-4 rounded-lg hover:bg-secondary-900 transition-colors ${
+                  location.pathname === '/dashboard' ? 'bg-secondary-900 text-primary' : ''
+                }`}
+              >
                 <RiBarChart2Line className="text-primary" />
+                Dashboard
+              </Link>
+            </li>
+            <li>
+              {/* RUTA INVENTARIO*/}
+              <Link 
+                to="/dashboard/inventario" 
+                className={`flex items-center gap-4 py-2 px-4 rounded-lg hover:bg-secondary-900 transition-colors ${
+                  location.pathname === '/dashboard/inventario' ? 'bg-secondary-900 text-primary' : ''
+                }`}
+              >
+                <RiArchiveStackLine className="text-primary" />
                 Inventario
               </Link>
             </li>
@@ -53,7 +71,9 @@ const Sidebar = () => {
                   {/* RUTA CATEGORIA*/}
                   <Link
                     to="/dashboard/categorias"
-                    className="py-2 px-4 border-l border-gray-500 ml-6 block relative before:w-3 before:h-3 before:absolute before:bg-primary before:rounded-full before:-left-[6.5px] before:top-1/2 before:-translate-y-1/2 before:border-2 before:border-secondary-100 hover:text-white transition-colors">
+                    className={`py-2 px-4 border-l border-gray-500 ml-6 block relative before:w-3 before:h-3 before:absolute before:rounded-full before:-left-[6.5px] before:top-1/2 before:-translate-y-1/2 before:border-2 before:border-secondary-100 hover:text-white transition-colors ${
+                      location.pathname === '/dashboard/categorias' ? 'text-primary before:bg-primary' : 'before:bg-gray-500'
+                    }`}>
                     Categorias
                   </Link>
                 </li>

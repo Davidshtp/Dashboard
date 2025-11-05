@@ -17,3 +17,58 @@
 .sidebar-container {
   -ms-overflow-style: none;
 }
+
+/* Estilos para menús desplegables */
+.szh-menu {
+  background-color: #1E1F25 !important;
+  border: 1px solid #4B5563 !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+  padding: 1rem !important;
+  min-width: 250px !important;
+  z-index: 1000 !important;
+}
+
+.szh-menu__item {
+  color: #F3F4F6 !important;
+  padding: 0 !important;
+  background-color: transparent !important;
+  border-radius: 0.5rem !important;
+  margin: 0.125rem 0 !important;
+}
+
+.szh-menu__item:hover {
+  background-color: #131517 !important;
+}
+
+.szh-menu__item--hover {
+  background-color: #131517 !important;
+}
+
+.szh-menu__item a,
+.szh-menu__item button {
+  color: #F3F4F6 !important;
+  width: 100% !important;
+}
+
+.szh-menu__divider {
+  border-color: #4B5563 !important;
+  margin: 1rem 0 !important;
+  border-top-width: 1px !important;
+}
+
+.szh-menu__arrow {
+  color: #1E1F25 !important;
+}
+
+/* Asegurar que el texto sea visible */
+.szh-menu * {
+  color: inherit !important;
+}
+
+/* Título de notificaciones */
+.szh-menu h1 {
+  color: #BDEB00 !important;
+  font-weight: 700 !important;
+  font-size: 1.125rem !important;
+}

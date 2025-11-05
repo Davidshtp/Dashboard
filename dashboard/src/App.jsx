@@ -6,6 +6,7 @@ import Register from "./pages/auth/Register";
 import ForgetPassword from "./pages/auth/ForgetPassword";
 import LayoutAdmin from "./layouts/LayoutAdmin";
 import Profile from "./pages/admin/Profile";
+import Dashboard from "./pages/admin/Dashboard";
 import Error404 from "./pages/Error404";
 import ProtectedRoute from "./components/ProtectedRoute"; 
 
@@ -17,11 +18,35 @@ function App() {
     <>
       <Toaster
         position="top-right"
-        toastOptions={
-          {
-            /* ... (tu configuración de Toaster) ... */
-          }
-        }
+        reverseOrder={false}
+        gutter={8}
+        containerClassName=""
+        containerStyle={{}}
+        toastOptions={{
+          // Define default options
+          className: '',
+          duration: 4000,
+          style: {
+            background: '#1E1F25',
+            color: '#fff',
+            border: '1px solid #374151',
+          },
+          // Default options for specific types
+          success: {
+            duration: 3000,
+            theme: {
+              primary: '#BDEB00',
+              secondary: 'black',
+            },
+          },
+          error: {
+            duration: 4000,
+            theme: {
+              primary: '#ef4444',
+              secondary: 'white',
+            },
+          },
+        }}
       />
 
       <BrowserRouter>
@@ -41,9 +66,9 @@ function App() {
               </ProtectedRoute>
             }
           >
-            {/* 2. Agregar la nueva ruta aquí */}
+            <Route index element={<Dashboard />} />
             <Route path="inventario" element={<Inventory />} />
-            <Route path="categorias" element={<Categories />} /> {/* <-- Añadimos la ruta */}
+            <Route path="categorias" element={<Categories />} />
             <Route path="perfil" element={<Profile />} />
           </Route>
           
