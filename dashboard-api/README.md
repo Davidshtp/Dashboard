@@ -2,6 +2,13 @@
 
 API REST desarrollada con FastAPI para el sistema de Dashboard con gestión de usuarios, categorías e inventario.
 
+# Integrantes del Equipo:
+- David Medina
+- Samuel Anacona
+- Steven Moreno
+- Santiago Ruales
+- Edwin Agudelo
+
 ## Características
 
 - ✅ **API RESTful** con FastAPI
