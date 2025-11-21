@@ -110,6 +110,7 @@ dashboard-api/
     ├── __init__.py
     └── memory_storage.py  # Lógica de almacenamiento
 ```
+![alt text](image.png)
 
 ## CORS Configuración
 
