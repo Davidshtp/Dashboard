@@ -13,10 +13,11 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=50)
     lastName: Optional[str] = Field(None, min_length=1, max_length=50)
-    email: Optional[EmailStr] = None
+    avatar: Optional[str] = Field(None, description="URL del avatar del usuario")
 
 class UserResponse(UserBase):
     id: str = Field(..., description="ID único del usuario")
+    avatar: Optional[str] = Field(None, description="URL del avatar del usuario")
     resetCode: Optional[str] = Field(None, description="Código temporal para reset de contraseña")
     
     class Config:
@@ -32,8 +33,9 @@ class LoginRequest(BaseModel):
 
 class LoginResponse(BaseModel):
     message: str
-    user: UserResponse
     status: str
+    user: UserResponse
+    jwt: str = Field(..., description="JWT token para autenticación")
 
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr = Field(..., description="Email del usuario")

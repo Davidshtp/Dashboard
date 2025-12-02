@@ -1,9 +1,12 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Header
 from models.user import (
     LoginRequest, LoginResponse, ForgotPasswordRequest, 
     ResetPasswordRequest, UserCreate, UserResponse, StandardResponse
 )
-from storage.memory_storage import storage
+from storage.firebase_storage import storage
+from utils.jwt_handler import create_access_token, verify_access_token
+from utils.password_handler import hash_password, verify_password
+from typing import Optional
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -26,12 +29,17 @@ async def register(user_data: UserCreate):
         )
     
     try:
-        user = storage.create_user(user_data.dict())
+        # Encriptar la contraseña antes de guardarla
+        user_dict = user_data.dict()
+        user_dict['password'] = hash_password(user_dict['password'])
+        
+        user = storage.create_user(user_dict)
         return UserResponse(
             id=user.id,
             name=user.name,
             lastName=user.lastName,
             email=user.email,
+            avatar=user.avatar if hasattr(user, 'avatar') else None,
             resetCode=user.resetCode
         )
     except Exception as e:
@@ -47,6 +55,8 @@ async def login(credentials: LoginRequest):
     
     - **email**: Email del usuario registrado
     - **password**: Contraseña del usuario
+    
+    Retorna un JWT con los datos del usuario en el payload
     """
     user = storage.get_user_by_email(credentials.email)
     
@@ -56,11 +66,20 @@ async def login(credentials: LoginRequest):
             detail="Usuario no encontrado"
         )
     
-    if user.password != credentials.password:
+    # Verificar contraseña usando bcrypt
+    if not verify_password(credentials.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Contraseña incorrecta"
         )
+    
+    # Generar JWT con datos del usuario en el payload
+    token = create_access_token({
+        "id": user.id,
+        "email": user.email,
+        "name": user.name,
+        "lastName": user.lastName
+    })
     
     return LoginResponse(
         message="Login exitoso",
@@ -70,8 +89,10 @@ async def login(credentials: LoginRequest):
             name=user.name,
             lastName=user.lastName,
             email=user.email,
+            avatar=user.avatar if hasattr(user, 'avatar') else None,
             resetCode=user.resetCode
-        )
+        ),
+        jwt=token
     )
 
 @router.post("/forgot-password", response_model=StandardResponse)
@@ -110,8 +131,11 @@ async def reset_password(request: ResetPasswordRequest):
             detail="Código de verificación inválido o expirado"
         )
     
+    # Encriptar la nueva contraseña
+    hashed_password = hash_password(request.newPassword)
+    
     # Resetear contraseña
-    success = storage.reset_password(request.email, request.newPassword)
+    success = storage.reset_password(request.email, hashed_password)
     
     if not success:
         raise HTTPException(
@@ -123,3 +147,59 @@ async def reset_password(request: ResetPasswordRequest):
         message="Contraseña restablecida exitosamente",
         status="success"
     )
+
+
+@router.get("/me", response_model=UserResponse)
+async def get_current_user(authorization: Optional[str] = Header(None)):
+    """
+    Obtener datos del usuario actual validando el JWT
+    
+    - **authorization**: Header con el JWT (Bearer {token})
+    
+    Decodifica el JWT y retorna la información del usuario
+    """
+    if not authorization:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token no proporcionado"
+        )
+    
+    try:
+        # Extraer token del header "Bearer {token}"
+        token = authorization.replace("Bearer ", "").strip()
+        
+        # Verificar y decodificar JWT
+        payload = verify_access_token(token)
+        
+        # Obtener usuario de Firestore con el ID del payload
+        user_id = payload.get("id")
+        if not user_id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token inválido - ID no encontrado"
+            )
+        
+        user = storage.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado"
+            )
+        
+        return UserResponse(
+            id=user.id,
+            name=user.name,
+            lastName=user.lastName,
+            email=user.email,
+            avatar=user.avatar if hasattr(user, 'avatar') else None,
+            resetCode=user.resetCode
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error en /auth/me: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido o expirado"
+        )

@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import { RiMailFill, RiLockFill, RiEyeFill, RiEyeOffFill } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
-import { useUserStore } from "../../stores/useUserStore";
-import { useAuthStore } from "../../stores/authStore"; // Importa el authStore
+import { useAuthStore } from "../../stores/authStore";
+import { authService } from "../../services/authService";
 import toast from "react-hot-toast";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const loginUser = useUserStore((state) => state.login);
-  const loginAuth = useAuthStore((state) => state.login); // Función del authStore
+  const [loading, setLoading] = useState(false);
+  const loginAuth = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validaciones básicas
@@ -22,21 +22,27 @@ const Login = () => {
       return;
     }
 
-    const result = loginUser(email.toLowerCase().trim(), password);
+    setLoading(true);
 
-    if (result === "success") {
-      // Obtener el usuario actual del userStore
-      const currentUser = useUserStore.getState().currentUser;
-      if (currentUser) {
-        // Establecer la autenticación en ambos stores
-        loginAuth(currentUser);
-        toast.success(`¡Bienvenido ${currentUser.name}!`, { duration: 2000 });
+    try {
+      console.log('📝 Iniciando login con:', email);
+      const result = await authService.login(email.toLowerCase().trim(), password);
+      console.log('✅ Login exitoso:', result);
+      
+      if (result.user && result.jwt) {
+        // El JWT ya fue guardado en authService.login()
+        // Ahora establecer el usuario en el store
+        loginAuth(result.user);
+        console.log('👤 Usuario establecido en store:', result.user);
+        toast.success(`¡Bienvenido ${result.user.name}!`, { duration: 2000 });
         setTimeout(() => navigate("/dashboard"), 2100);
       }
-    } else if (result === "user-not-found") {
-      toast.error("Usuario no encontrado", { duration: 3000 });
-    } else if (result === "wrong-password") {
-      toast.error("Contraseña incorrecta", { duration: 3000 });
+    } catch (error) {
+      const errorMessage = error.detail || "Error al iniciar sesión";
+      toast.error(errorMessage, { duration: 3000 });
+      console.error("Login error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -85,9 +91,10 @@ const Login = () => {
           <div>
             <button
               type="submit"
-              className="bg-primary text-black uppercase font-bold text-sm w-full py-3 px-4 rounded-lg"
+              disabled={loading}
+              className="bg-primary text-black uppercase font-bold text-sm w-full py-3 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Ingresar
+              {loading ? "Ingresando..." : "Ingresar"}
             </button>
           </div>
         </form>

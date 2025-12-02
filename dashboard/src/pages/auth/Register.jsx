@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { RiMailFill, RiLockFill, RiEyeFill, RiEyeOffFill, RiUserLine } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
-import { useUserStore } from "../../stores/useUserStore";
+import { authService } from "../../services/authService";
 import { toast } from "react-hot-toast";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     name: "",
     lastName: "",
@@ -14,14 +15,13 @@ const Register = () => {
     confirmPassword: "",
   });
 
-  const register = useUserStore((state) => state.register);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validaciones mejoradas
@@ -40,19 +40,26 @@ const Register = () => {
       return;
     }
 
-    const result = register({
-      id: Date.now().toString(),
-      name: form.name.trim(),
-      lastName: form.lastName.trim(),
-      email: form.email.toLowerCase().trim(),
-      password: form.password,
-    });
+    setLoading(true);
 
-    if (result === "success") {
-      toast.success("Registrado correctamente", { duration: 2000 });
-      setTimeout(() => navigate("/login"), 2100);
-    } else if (result === "email-exists") {
-      toast.error("Ya existe una cuenta con ese correo", { duration: 3000 });
+    try {
+      const result = await authService.register({
+        name: form.name.trim(),
+        lastName: form.lastName.trim(),
+        email: form.email.toLowerCase().trim(),
+        password: form.password,
+      });
+
+      if (result) {
+        toast.success("Registrado correctamente", { duration: 2000 });
+        setTimeout(() => navigate("/login"), 2100);
+      }
+    } catch (error) {
+      const errorMessage = error.detail || "Error al registrar";
+      toast.error(errorMessage, { duration: 3000 });
+      console.error("Register error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -152,9 +159,10 @@ const Register = () => {
 
           <button
             type="submit"
-            className="bg-primary text-black uppercase font-bold text-sm w-full py-3 px-4 rounded-lg"
+            disabled={loading}
+            className="bg-primary text-black uppercase font-bold text-sm w-full py-3 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Registrarme
+            {loading ? "Registrando..." : "Registrarme"}
           </button>
         </form>
 
