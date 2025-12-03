@@ -5,9 +5,10 @@ import toast from "react-hot-toast";
 
 const CategoryModal = ({ isOpen, onClose, categoryToEdit }) => {
   const [name, setName] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const addCategory = useCategoryStore((state) => state.addCategory);
   const updateCategory = useCategoryStore((state) => state.updateCategory);
+  const categories = useCategoryStore((state) => state.categories);
 
   useEffect(() => {
     if (categoryToEdit) {
@@ -17,7 +18,7 @@ const CategoryModal = ({ isOpen, onClose, categoryToEdit }) => {
     }
   }, [categoryToEdit, isOpen]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     const trimmedName = name.trim();
@@ -33,7 +34,6 @@ const CategoryModal = ({ isOpen, onClose, categoryToEdit }) => {
     }
 
     // Verificar si ya existe una categoría con ese nombre
-    const categories = useCategoryStore.getState().categories;
     const existingCategory = categories.find(
       cat => cat.name.toLowerCase() === trimmedName.toLowerCase() && 
              (!categoryToEdit || cat.id !== categoryToEdit.id)
@@ -44,14 +44,24 @@ const CategoryModal = ({ isOpen, onClose, categoryToEdit }) => {
       return;
     }
 
-    if (categoryToEdit) {
-      updateCategory({ ...categoryToEdit, name: trimmedName });
-      toast.success("Categoría actualizada correctamente");
-    } else {
-      addCategory({ id: Date.now().toString(), name: trimmedName });
-      toast.success("Categoría agregada correctamente");
+    setLoading(true);
+
+    try {
+      if (categoryToEdit) {
+        await updateCategory(categoryToEdit.id, trimmedName);
+        toast.success("Categoría actualizada correctamente");
+      } else {
+        await addCategory(trimmedName);
+        toast.success("Categoría agregada correctamente");
+      }
+      onClose();
+    } catch (error) {
+      const errorMsg = error?.detail || "Error al guardar categoría";
+      toast.error(errorMsg, { duration: 3000 });
+      console.error("Category modal error:", error);
+    } finally {
+      setLoading(false);
     }
-    onClose();
   };
 
   return (
@@ -71,7 +81,8 @@ const CategoryModal = ({ isOpen, onClose, categoryToEdit }) => {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full py-2 px-4 outline-none rounded-lg bg-secondary-900 mt-1"
+                disabled={loading}
+                className="w-full py-2 px-4 outline-none rounded-lg bg-secondary-900 mt-1 disabled:opacity-50"
                 required
                 autoFocus
               />
@@ -80,15 +91,17 @@ const CategoryModal = ({ isOpen, onClose, categoryToEdit }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+                disabled={loading}
+                className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="bg-primary text-black py-2 px-4 rounded-lg hover:bg-primary/80 transition-colors"
+                disabled={loading}
+                className="bg-primary text-black py-2 px-4 rounded-lg hover:bg-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {categoryToEdit ? "Actualizar" : "Guardar"}
+                {loading ? "Guardando..." : categoryToEdit ? "Actualizar" : "Guardar"}
               </button>
             </div>
           </form>

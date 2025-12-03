@@ -13,6 +13,7 @@
     "@headlessui/react": "^2.2.9",
     "@headlessui/tailwindcss": "^0.2.2",
     "@szhsin/react-menu": "^4.5.0",
+    "axios": "^1.13.2",
     "emailjs-com": "^3.2.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

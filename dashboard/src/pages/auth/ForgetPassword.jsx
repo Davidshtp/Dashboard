@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { RiMailFill, RiLockFill } from "react-icons/ri";
 import { Link } from "react-router-dom";
-import { useUserStore } from "../../stores/useUserStore";
+import { authService } from "../../services/authService";
 import { toast } from "react-hot-toast";
 import emailjs from "emailjs-com";
 
@@ -11,62 +11,69 @@ const ForgetPassword = () => {
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  const users = useUserStore((state) => state.users);
-  const resetPassword = useUserStore((state) => state.resetPassword);
-  const setResetCode = useUserStore((state) => state.setResetCode);
-  const verifyResetCode = useUserStore((state) => state.verifyResetCode);
-  const clearResetCode = useUserStore((state) => state.clearResetCode);
+  const [loading, setLoading] = useState(false);
 
   // Enviar código de recuperación
   const sendCode = async (e) => {
     e.preventDefault();
     if (!email) return toast.error("Ingresa tu correo");
-    
-    const userExists = users.find((u) => u.email === email);
-    if (!userExists) return toast.error("Correo no registrado");
 
-    // Generar código aleatorio de 6 dígitos
-    const tempCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // Guardar el código en el usuario
-    setResetCode(email, tempCode);
-
-    console.log(email,tempCode)
+    setLoading(true);
 
     try {
-      await emailjs.send(
-        "service_ze43zfw",
-        "template_920y74a",
-        {
-          to_email: email,
-          code: tempCode,
-          name: email,
-        },
-        "haW95UnOS_PJcDWZy"
-      );
-      toast.success("Código enviado a tu correo", { duration: 2000 });
-      setStep(2);
+      const result = await authService.forgotPassword(email);
+      
+      if (result) {
+        // El backend genera y devuelve el código
+        const resetCode = result.message.split(": ")[1]; // Extrae el código del mensaje
+        
+        // Enviar email con EmailJS
+        await emailjs.send(
+          "service_ze43zfw",
+          "template_920y74a",
+          {
+            to_email: email,
+            code: resetCode,
+            name: email,
+          },
+          "haW95UnOS_PJcDWZy"
+        );
+        
+        toast.success("Código enviado a tu correo", { duration: 2000 });
+        setStep(2);
+      }
     } catch (error) {
-      toast.error("Error enviando el correo");
-      console.error(error);
+      const errorMessage = error.detail || "Error al solicitar recuperación";
+      toast.error(errorMessage, { duration: 3000 });
+      console.error("Forgot password error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   // Verificar código y cambiar contraseña
-  const handleReset = (e) => {
+  const handleReset = async (e) => {
     e.preventDefault();
 
-    if (!verifyResetCode(email, code)) return toast.error("Código incorrecto");
+    if (!code.trim()) return toast.error("Ingresa el código");
     if (newPassword !== confirmPassword) return toast.error("Contraseñas no coinciden");
+    if (newPassword.length < 6) return toast.error("La contraseña debe tener al menos 6 caracteres");
 
-    const result = resetPassword(email, newPassword);
-    if (result === "user-not-found") {
-      toast.error("Usuario no encontrado");
-    } else {
-      toast.success("Contraseña actualizada", { duration: 2000 });
-      clearResetCode(email);
-      setTimeout(() => (window.location.href = "/"), 2000);
+    setLoading(true);
+
+    try {
+      const result = await authService.resetPassword(email, code, newPassword);
+      
+      if (result) {
+        toast.success("Contraseña actualizada", { duration: 2000 });
+        setTimeout(() => (window.location.href = "/"), 2000);
+      }
+    } catch (error) {
+      const errorMessage = error.detail || "Error al restablecer contraseña";
+      toast.error(errorMessage, { duration: 3000 });
+      console.error("Reset password error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -92,9 +99,10 @@ const ForgetPassword = () => {
             </div>
             <button
               type="submit"
-              className="bg-primary text-black uppercase font-bold text-sm w-full py-3 px-4 rounded-lg"
+              disabled={loading}
+              className="bg-primary text-black uppercase font-bold text-sm w-full py-3 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Enviar Código
+              {loading ? "Enviando..." : "Enviar Código"}
             </button>
           </form>
         )}
@@ -139,9 +147,10 @@ const ForgetPassword = () => {
 
             <button
               type="submit"
-              className="bg-primary text-black uppercase font-bold text-sm w-full py-3 px-4 rounded-lg"
+              disabled={loading}
+              className="bg-primary text-black uppercase font-bold text-sm w-full py-3 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Cambiar Contraseña
+              {loading ? "Cambiando..." : "Cambiar Contraseña"}
             </button>
           </form>
         )}

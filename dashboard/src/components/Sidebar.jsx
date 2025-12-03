@@ -1,15 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import {
-  RiBarChart2Line,
-  RiEarthLine,
-  RiCustomerService2Line,
-  RiLogoutCircleLine,
-  RiArrowRightSLine,
-  RiMenu3Line,
-  RiCloseLine,
-  RiArchiveStackLine,
-} from "react-icons/ri";
+import {RiBarChart2Line,RiEarthLine,RiLogoutCircleLine,RiArrowRightSLine,RiMenu3Line,RiCloseLine,RiArchiveStackLine,} from "react-icons/ri";
 import { useAuthStore } from "../stores/authStore";
 import toast from "react-hot-toast";
 
@@ -17,10 +8,8 @@ const Sidebar = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [showSubmenu, setShowSubmenu] = useState(false);
   const location = useLocation();
-
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
-
   const handleLogout = () => {
     logout();
     toast.success("Sesión cerrada correctamente", { duration: 2000 });
@@ -68,7 +57,6 @@ const Sidebar = () => {
               </button>
               <ul className={`my-2 ${!showSubmenu && "hidden"}`}>
                 <li>
-                  {/* RUTA CATEGORIA*/}
                   <Link
                     to="/dashboard/categorias"
                     className={`py-2 px-4 border-l border-gray-500 ml-6 block relative before:w-3 before:h-3 before:absolute before:rounded-full before:-left-[6.5px] before:top-1/2 before:-translate-y-1/2 before:border-2 before:border-secondary-100 hover:text-white transition-colors ${
@@ -78,13 +66,12 @@ const Sidebar = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/" className="py-2 px-4 border-l border-gray-500 ml-6 block relative before:w-3 before:h-3 before:absolute before:bg-gray-500 before:rounded-full before:-left-[6.5px] before:top-1/2 before:-translate-y-1/2 before:border-2 before:border-secondary-100 hover:text-white transition-colors">
-                    Sin Stock
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/" className="py-2 px-4 border-l border-gray-500 ml-6 block relative before:w-3 before:h-3 before:absolute before:bg-gray-500 before:rounded-full before:-left-[6.5px] before:top-1/2 before:-translate-y-1/2 before:border-2 before:border-secondary-100 hover:text-white transition-colors">
-                    Inactivos
+                  <Link
+                    to="/dashboard/stock-bajo"
+                    className={`py-2 px-4 border-l border-gray-500 ml-6 block relative before:w-3 before:h-3 before:absolute before:rounded-full before:-left-[6.5px] before:top-1/2 before:-translate-y-1/2 before:border-2 before:border-secondary-100 hover:text-white transition-colors ${
+                      location.pathname === '/dashboard/stock-bajo' ? 'text-primary before:bg-primary' : 'before:bg-gray-500'
+                    }`}>
+                    Stock Bajo
                   </Link>
                 </li>
               </ul>

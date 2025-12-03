@@ -1,16 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { RiBarChart2Line, RiArchiveStackLine, RiUserLine, RiShoppingCartLine } from "react-icons/ri";
 import { useInventoryStore } from "../../stores/inventoryStore";
 import { useCategoryStore } from "../../stores/categoryStore";
-import { useUserStore } from "../../stores/useUserStore";
+import { useAuthStore } from "../../stores/authStore";
+import { formatCurrency } from "../../utils/formatters";
 
 const Dashboard = () => {
   const items = useInventoryStore((state) => state.items);
+  const fetchItems = useInventoryStore((state) => state.fetchItems);
   const categories = useCategoryStore((state) => state.categories);
-  const currentUser = useUserStore((state) => state.currentUser);
+  const fetchCategories = useCategoryStore((state) => state.fetchCategories);
+  const currentUser = useAuthStore((state) => state.user);
 
-  // Calcular estadísticas
+  // Cargar datos al montar el componente
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        await Promise.all([fetchItems(), fetchCategories()]);
+      } catch (error) {
+        console.error("Error loading dashboard data:", error);
+      }
+    };
+    loadData();
+  }, [fetchItems, fetchCategories]);
+
   const totalItems = items.length;
   const totalCategories = categories.length;
   const lowStockItems = items.filter(item => item.quantity < 5).length;
@@ -36,11 +50,11 @@ const Dashboard = () => {
       value: lowStockItems,
       icon: <RiBarChart2Line className="text-2xl" />,
       color: "bg-yellow-500",
-      link: "/dashboard/inventario"
+      link: "/dashboard/stock-bajo"
     },
     {
       title: "Valor Total",
-      value: `$${totalValue.toFixed(2)}`,
+      value: formatCurrency(totalValue),
       icon: <RiBarChart2Line className="text-2xl" />,
       color: "bg-purple-500",
       link: "/dashboard/inventario"

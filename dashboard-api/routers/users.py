@@ -3,7 +3,7 @@ from models.user import (
     UserResponse, UserUpdate, ChangePasswordRequest, 
     UpdateEmailRequest, StandardResponse
 )
-from storage.memory_storage import storage
+from storage.firebase_storage import storage
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
