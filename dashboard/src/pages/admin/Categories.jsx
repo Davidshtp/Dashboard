@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { RiAddLine, RiPencilLine, RiDeleteBinLine } from "react-icons/ri";
 import { useCategoryStore } from "../../stores/categoryStore";
 import { useInventoryStore } from "../../stores/inventoryStore";
@@ -8,9 +8,16 @@ import toast from "react-hot-toast";
 const Categories = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categoryToEdit, setCategoryToEdit] = useState(null);
-
-  const { categories, deleteCategory } = useCategoryStore();
+  const { categories, loading, fetchCategories, deleteCategory } = useCategoryStore();
   const items = useInventoryStore((state) => state.items);
+
+  // Cargar categorías al montar el componente
+  useEffect(() => {
+    fetchCategories().catch((error) => {
+      console.error("Error loading categories:", error);
+      toast.error("Error al cargar categorías", { duration: 3000 });
+    });
+  }, []);
 
   const handleOpenModal = () => {
     setCategoryToEdit(null);
@@ -22,7 +29,7 @@ const Categories = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteCategory = (id) => {
+  const handleDeleteCategory = async (id) => {
     // Verificar si categoria está siendo usada por algún item
     const isCategoryInUse = items.some((item) => item.categoryId === id);
 
@@ -32,8 +39,12 @@ const Categories = () => {
     }
 
     if (window.confirm("¿Estás seguro de que deseas eliminar esta categoría?")) {
-      deleteCategory(id);
-      toast.success("Categoría eliminada correctamente", { duration: 2000 });
+      try {
+        await deleteCategory(id);
+        toast.success("Categoría eliminada correctamente", { duration: 2000 });
+      } catch (error) {
+        toast.error("Error al eliminar categoría", { duration: 3000 });
+      }
     }
   };
 
@@ -48,7 +59,8 @@ const Categories = () => {
           <h1 className="text-xl text-white">Gestión de Categorías</h1>
           <button
             onClick={handleOpenModal}
-            className="bg-primary text-black flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-primary/80 transition-colors"
+            disabled={loading}
+            className="bg-primary text-black flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RiAddLine /> Agregar Categoría
           </button>
@@ -64,7 +76,13 @@ const Categories = () => {
               </tr>
             </thead>
             <tbody>
-              {categories.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="2" className="py-4 text-center text-gray-500">
+                    Cargando categorías...
+                  </td>
+                </tr>
+              ) : categories.length === 0 ? (
                 <tr>
                   <td colSpan="2" className="py-4 text-center text-gray-500">
                     No hay categorías creadas.

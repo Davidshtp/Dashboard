@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { RiAddLine, RiPencilLine, RiDeleteBinLine } from "react-icons/ri";
 import { useInventoryStore } from "../../stores/inventoryStore";
 import { useCategoryStore } from "../../stores/categoryStore";
+import { formatCurrency } from "../../utils/formatters";
 import InventoryModal from "../../components/InventoryModal";
 import toast from "react-hot-toast";
 
@@ -10,14 +11,27 @@ const Inventory = () => {
   const [itemToEdit, setItemToEdit] = useState(null);
   const [search, setSearch] = useState("");
   const [debounced, setDebounced] = useState("");
+  const { items, loading, fetchItems, deleteItem } = useInventoryStore();
+  const { categories, fetchCategories } = useCategoryStore();
 
-  const items = useInventoryStore((state) => state.items);
-  const { categories } = useCategoryStore();
+  // Cargar items y categorías al montar el componente
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        await fetchCategories();
+        await fetchItems();
+      } catch (error) {
+        console.error("Error loading data:", error);
+        toast.error("Error al cargar datos", { duration: 3000 });
+      }
+    };
+    loadData();
+  }, []);
+
   const getCategoryName = (categoryId) => {
     const category = categories.find((c) => c.id === categoryId);
     return category ? category.name : "Sin categoría";
   };
-  const deleteItem = useInventoryStore((state) => state.deleteItem);
 
   // Debounce básico para la búsqueda
   React.useEffect(() => {
@@ -49,10 +63,14 @@ const Inventory = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteItem = (id) => {
+  const handleDeleteItem = async (id) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este producto?")) {
-      deleteItem(id);
-      toast.success("Producto eliminado correctamente", { duration: 2000 });
+      try {
+        await deleteItem(id);
+        toast.success("Producto eliminado correctamente", { duration: 2000 });
+      } catch (error) {
+        toast.error("Error al eliminar producto", { duration: 3000 });
+      }
     }
   };
 
@@ -67,7 +85,8 @@ const Inventory = () => {
           <h1 className="text-xl text-white">Inventario</h1>
           <button
             onClick={handleOpenModal}
-            className="bg-primary text-black flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-primary/80 transition-colors"
+            disabled={loading}
+            className="bg-primary text-black flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RiAddLine /> Agregar Producto
           </button>
@@ -101,7 +120,13 @@ const Inventory = () => {
               </tr>
             </thead>
             <tbody>
-              {items.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="py-4 text-center text-gray-500">
+                    Cargando productos...
+                  </td>
+                </tr>
+              ) : items.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="py-4 text-center text-gray-500">
                     No hay productos en el inventario.
@@ -120,7 +145,7 @@ const Inventory = () => {
                     <td className="py-2 px-4 text-gray-400">{item.description}</td>
                     <td className="py-2 px-4">{getCategoryName(item.categoryId)}</td>
                     <td className="py-2 px-4">{item.quantity}</td>
-                    <td className="py-2 px-4">${item.price}</td>
+                    <td className="py-2 px-4">{formatCurrency(item.price)}</td>
                     <td className="py-2 px-4">
                       <div className="flex gap-2">
                         <button

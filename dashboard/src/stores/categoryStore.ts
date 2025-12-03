@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { categoryService } from "../services/categoryService";
 
 export interface Category {
   id: string;
@@ -8,36 +8,86 @@ export interface Category {
 
 interface CategoryState {
   categories: Category[];
-  addCategory: (category: Category) => void;
-  updateCategory: (category: Category) => void;
-  deleteCategory: (id: string) => void;
+  loading: boolean;
+  error: string | null;
+
+  fetchCategories: () => Promise<void>;
+  addCategory: (name: string) => Promise<void>;
+  updateCategory: (id: string, name: string) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
+  setCategories: (categories: Category[]) => void;
 }
 
 export const useCategoryStore = create<CategoryState>()(
-  persist(
-    (set) => ({
-      categories: [], // Estado inicial
+  (set) => ({
+    categories: [],
+    loading: false,
+    error: null,
 
-      // Agregar una categoría
-      addCategory: (category) =>
-        set((state) => ({ categories: [...state.categories, category] })),
+    // Obtener todas las categorías desde el backend
+    fetchCategories: async () => {
+      set({ loading: true, error: null });
+      try {
+        const data = await categoryService.getAll();
+        set({ categories: data, loading: false });
+      } catch (error: any) {
+        const errorMsg = error?.detail || "Error al obtener categorías";
+        set({ error: errorMsg, loading: false });
+        throw error;
+      }
+    },
 
-      // Actualizar una categoría
-      updateCategory: (updatedCategory) =>
+    // Crear categoría
+    addCategory: async (name) => {
+      set({ loading: true, error: null });
+      try {
+        const newCategory = await categoryService.create(name);
         set((state) => ({
-          categories: state.categories.map((category) =>
-            category.id === updatedCategory.id ? updatedCategory : category
+          categories: [...state.categories, newCategory],
+          loading: false,
+        }));
+      } catch (error: any) {
+        const errorMsg = error?.detail || "Error al crear categoría";
+        set({ error: errorMsg, loading: false });
+        throw error;
+      }
+    },
+
+    // Actualizar categoría
+    updateCategory: async (id, name) => {
+      set({ loading: true, error: null });
+      try {
+        const updatedCategory = await categoryService.update(id, name);
+        set((state) => ({
+          categories: state.categories.map((cat) =>
+            cat.id === id ? updatedCategory : cat
           ),
-        })),
+          loading: false,
+        }));
+      } catch (error: any) {
+        const errorMsg = error?.detail || "Error al actualizar categoría";
+        set({ error: errorMsg, loading: false });
+        throw error;
+      }
+    },
 
-      //Eliminar una categoría
-      deleteCategory: (id) =>
+    // Eliminar categoría
+    deleteCategory: async (id) => {
+      set({ loading: true, error: null });
+      try {
+        await categoryService.delete(id);
         set((state) => ({
-          categories: state.categories.filter((category) => category.id !== id),
-        })),
-    }),
-    {
-      name: "category-storage", // Clave LocalStorage
-    }
-  )
+          categories: state.categories.filter((cat) => cat.id !== id),
+          loading: false,
+        }));
+      } catch (error: any) {
+        const errorMsg = error?.detail || "Error al eliminar categoría";
+        set({ error: errorMsg, loading: false });
+        throw error;
+      }
+    },
+
+    // Establecer categorías manualmente
+    setCategories: (categories) => set({ categories }),
+  })
 );
