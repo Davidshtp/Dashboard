@@ -4,11 +4,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import '@szhsin/react-menu/dist/index.css';
 import '@szhsin/react-menu/dist/transitions/slide.css';
 import { useAuthStore } from "../stores/authStore";
-import { useUserStore } from "../stores/useUserStore";
 import toast from "react-hot-toast";
 
 const Header = () => {
-  const currentUser = useUserStore((state) => state.currentUser);
+  const currentUser = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
 
@@ -21,9 +20,23 @@ const Header = () => {
     }, 2100);
   };
 
-  const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-    `${currentUser?.name ?? ""} ${currentUser?.lastName ?? ""}`
-  )}&background=0D8ABC&color=fff`;
+  // Obtener initiales para avatar por defecto
+  const getInitials = () => {
+    if (!currentUser?.name && !currentUser?.lastName) return "U";
+    const first = currentUser?.name?.charAt(0) || "";
+    const last = currentUser?.lastName?.charAt(0) || "";
+    return (first + last).toUpperCase() || "U";
+  };
+
+  // Avatar a mostrar
+  const getAvatarSrc = () => {
+    if (currentUser?.avatar) {
+      return currentUser.avatar;
+    }
+    return `https://ui-avatars.com/api/?name=${getInitials()}&background=0D8ABC&color=fff`;
+  };
+
+  const avatar = getAvatarSrc();
 
   return (
     <header className="h-[7vh] md:h-[10vh] border-b border-secondary-100 p-8 flex items-center justify-end">
