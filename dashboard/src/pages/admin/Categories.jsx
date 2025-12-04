@@ -76,7 +76,7 @@ const Categories = () => {
               </tr>
             </thead>
             <tbody>
-              {loading ? (
+              {loading && categories.length === 0 ? (
                 <tr>
                   <td colSpan="2" className="py-4 text-center text-gray-500">
                     Cargando categorías...

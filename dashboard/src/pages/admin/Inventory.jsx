@@ -120,7 +120,7 @@ const Inventory = () => {
               </tr>
             </thead>
             <tbody>
-              {loading ? (
+              {loading && items.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="py-4 text-center text-gray-500">
                     Cargando productos...
